@@ -4,7 +4,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,7 +22,7 @@ type Task struct {
 var db *gorm.DB
 
 func main() {
-	dsn := "host=localhost user=postgres password=arthur123 dbname=TaskGo port=5432 sslmode=disable"
+	dsn := "host=localhost user=postgres password=12345 dbname=taskgo port=5432 sslmode=disable"
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
@@ -32,6 +34,15 @@ func main() {
 	}
 
 	r := gin.Default()
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	r.GET("/task/:id", getTask)
 	r.GET("/tasks", getAllTasks)
