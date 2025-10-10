@@ -62,6 +62,7 @@ func main() {
 	//Crud для юзера
 	r.GET("/user/:id", getUser)
 	r.POST("/user", createUser)
+	r.DELETE("/user/:id", deleteUser)
 
 	port := os.Getenv("PORT")
 	if port == "" {
