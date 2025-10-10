@@ -39,6 +39,9 @@ func main() {
 	if err := db.AutoMigrate(&Task{}); err != nil {
 		log.Fatal("Migration failed:", err)
 	}
+	if err := db.AutoMigrate(&User{}); err != nil {
+		log.Fatal("Migration failed:", err)
+	}
 
 	r := gin.Default()
 
