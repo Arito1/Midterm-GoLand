@@ -63,6 +63,7 @@ func main() {
 	r.GET("/user/:id", getUser)
 	r.POST("/user", createUser)
 	r.DELETE("/user/:id", deleteUser)
+	r.POST("/login", loginUser)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -165,4 +166,20 @@ func deleteUser(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{"message": "user fully deleted"})
+}
+
+func loginUser(c *gin.Context) {
+	var input User
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	var user User
+	if err := db.Where("username = ? AND password = ?", input.Username, input.Password).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
 }
