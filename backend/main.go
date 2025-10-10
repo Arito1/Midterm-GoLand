@@ -17,11 +17,13 @@ type Task struct {
 	Title    string `json:"title"`
 	Text     string `json:"text"`
 	Category string `json:"category"`
+	UserID   uint   `json:"user_id"`
 }
 type User struct {
 	ID       uint   `json:"id" gorm:"primaryKey"`
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Tasks    []Task `json:"tasks" gorm:"foreignKey:TaskID"`
 }
 
 var db *gorm.DB
