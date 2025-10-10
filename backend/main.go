@@ -18,6 +18,11 @@ type Task struct {
 	Text     string `json:"text"`
 	Category string `json:"category"`
 }
+type User struct {
+	ID       uint   `json:"id" gorm:"primaryKey"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
 var db *gorm.DB
 
@@ -43,13 +48,15 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
-
+	//Crud для тасков
 	r.GET("/task/:id", getTask)
 	r.GET("/tasks", getAllTasks)
 	r.POST("/task", createTask)
-	r.PUT("/task/:id", updateTask)       // Полное обновление
-	r.PATCH("/task/:id", updateCategory) // Только категория
+	r.PUT("/task/:id", updateTask)
 	r.DELETE("/task/:id", deleteTask)
+	//Crud для юзера
+	r.GET("/user/:id", getUser)
+	r.POST("/user", createUser)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -112,32 +119,7 @@ func updateTask(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "task fully updated"})
-}
-
-func updateCategory(c *gin.Context) {
-	id := c.Param("id")
-	var t Task
-	if err := db.First(&t, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
-		return
-	}
-
-	var data struct {
-		Category string `json:"category"`
-	}
-	if err := c.ShouldBindJSON(&data); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	t.Category = data.Category
-	if err := db.Save(&t).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "category updated"})
+	c.JSON(http.StatusOK, existing)
 }
 
 func deleteTask(c *gin.Context) {
@@ -147,4 +129,34 @@ func deleteTask(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "task deleted"})
+}
+
+func createUser(c *gin.Context) {
+	var user User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	if err := db.Create(&user).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "user fully created"})
+
+}
+func getUser(c *gin.Context) {
+	id := c.Param("id")
+	var user User
+	if err := db.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+	}
+	c.JSON(http.StatusOK, user)
+}
+func deleteUser(c *gin.Context) {
+	id := c.Param("id")
+	if err := db.Delete(&User{}, id).Error; err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "user fully deleted"})
 }
