@@ -23,13 +23,13 @@ type User struct {
 	ID       uint   `json:"id" gorm:"primaryKey"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Tasks    []Task `json:"tasks" gorm:"foreignKey:TaskID"`
+	Tasks    []Task `json:"tasks" gorm:"foreignKey:UserID"`
 }
 
 var db *gorm.DB
 
 func main() {
-	dsn := "host=localhost user=postgres password=12345 dbname=taskgo port=5432 sslmode=disable"
+	dsn := "host=localhost user=postgres password=arthur123 dbname=TaskGo port=5432 sslmode=disable"
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
