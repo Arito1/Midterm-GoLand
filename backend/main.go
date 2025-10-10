@@ -147,7 +147,7 @@ func createUser(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(200, gin.H{"message": "user fully created"})
+	c.JSON(200, user)
 
 }
 func getUser(c *gin.Context) {
